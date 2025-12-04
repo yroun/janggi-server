@@ -5,7 +5,7 @@ on:
     branches: [ "main", "develop" ]
 
 env:
-  AWS_REGION: ap-southeast-1
+  AWS_REGION: ap-northeast-2
   S3_BUCKET_NAME: yroun-server-deploy
   CODEDEPLOY_APP_NAME: play-janggi
   CODEDEPLOY_GROUP_PROD: play-janggi-server-prd
