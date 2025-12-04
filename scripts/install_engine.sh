@@ -21,16 +21,12 @@ if [ -f /etc/os-release ]; then
     fi
 fi
 
-# 2. 작업 디렉토리 및 설치 경로 설정
+# 2. 작업 디렉토리 생성
 WORK_DIR="$HOME/fairy-stockfish-build"
-INSTALL_DIR="/data/lib"  # ⭐️ 요청하신 설치 경로
+INSTALL_DIR="$HOME/janggi-backend/bin" # ⭐️ 실제 프로젝트 bin 경로로 수정 권장
 
-# 디렉토리 생성 (권한 문제 방지를 위해 sudo 사용)
 mkdir -p "$WORK_DIR"
-sudo mkdir -p "$INSTALL_DIR"
-# ec2-user가 /data/lib에 접근할 수 있도록 소유권 조정 (필요 시)
-sudo chown -R $(whoami) "$INSTALL_DIR"
-
+mkdir -p "$INSTALL_DIR"
 cd "$WORK_DIR"
 
 # 3. 소스코드 다운로드 (장기 전용 14.0.1 XQ 버전)
@@ -48,7 +44,7 @@ curl -L -o xiangqi-83f16c17fe26.nnue https://github.com/fairy-stockfish/Fairy-St
 curl -L -o janggi-85de3dae670a.nnue https://github.com/fairy-stockfish/Fairy-Stockfish/releases/download/fairy_sf_14_0_1_xq/janggi-85de3dae670a.nnue
 
 # 5. 빌드 (Largeboard + AVX2 최적화)
-# AWS EC2 (Intel/AMD) 환경에 맞춰 x86-64-modern 사용
+# AWS EC2는 대부분 x86_64이므로 ARCH=x86-64-bmi2 또는 modern을 사용
 echo "🔨 빌드 시작 (Largeboard)..."
 make clean
 make build ARCH=x86-64-modern largeboard=yes CXXFLAGS="-std=c++17 -DLARGEBOARD -DALL_VARIANTS"
@@ -56,19 +52,16 @@ make build ARCH=x86-64-modern largeboard=yes CXXFLAGS="-std=c++17 -DLARGEBOARD -
 # 6. 설치 (이동)
 echo "🚚 실행 파일 이동 중..."
 # 생성된 파일명이 stockfish 또는 fairy-stockfish 일 수 있음
-TARGET_FILE=""
 if [ -f "fairy-stockfish" ]; then
-    TARGET_FILE="fairy-stockfish"
+    mv fairy-stockfish "$INSTALL_DIR/fairy-stockfish"
 elif [ -f "stockfish" ]; then
-    TARGET_FILE="stockfish"
+    mv stockfish "$INSTALL_DIR/fairy-stockfish"
 else
     echo "❌ 빌드 실패: 실행 파일을 찾을 수 없습니다."
     exit 1
 fi
 
-# /data/lib 으로 이동 (덮어쓰기)
-sudo mv "$TARGET_FILE" "$INSTALL_DIR/fairy-stockfish"
-sudo chmod +x "$INSTALL_DIR/fairy-stockfish"
+chmod +x "$INSTALL_DIR/fairy-stockfish"
 
 # 7. 정리
 cd "$HOME"
