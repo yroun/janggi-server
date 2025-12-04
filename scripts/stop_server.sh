@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PORT=8000
+PORT=8001
 
 echo "🔍 Checking for process occupying port $PORT..."
 
