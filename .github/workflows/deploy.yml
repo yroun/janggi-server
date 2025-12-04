@@ -1,0 +1,63 @@
+name: Deploy to AWS CodeDeploy
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+
+env:
+  AWS_REGION: ap-southeast-1
+  S3_BUCKET_NAME: yroun-server-deploy
+  CODEDEPLOY_APP_NAME: play-janggi
+  CODEDEPLOY_GROUP_PROD: play-janggi-server-prd
+  CODEDEPLOY_GROUP_DEV: play-janggi-server-dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 1. 환경별 설정 (Dev vs Prod) + S3 경로 결정
+      - name: Set Deploy Config
+        id: config
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "DEPLOY_GROUP=${{ env.CODEDEPLOY_GROUP_PROD }}" >> $GITHUB_OUTPUT
+            # ⭐️ S3 키(경로)도 여기서 미리 정의합니다.
+            echo "S3_KEY=${{ env.CODEDEPLOY_GROUP_PROD }}/${{ github.sha }}.zip" >> $GITHUB_OUTPUT
+            echo "${{ secrets.ENV_FILE_PROD }}" > .env
+          else
+            echo "DEPLOY_GROUP=${{ env.CODEDEPLOY_GROUP_DEV }}" >> $GITHUB_OUTPUT
+            # ⭐️ Dev용 경로
+            echo "S3_KEY=${{ env.CODEDEPLOY_GROUP_DEV }}/${{ github.sha }}.zip" >> $GITHUB_OUTPUT
+            echo "${{ secrets.ENV_FILE_DEV }}" > .env
+          fi
+
+      # 2. 파일 압축
+      - name: Zip Files
+        run: |
+          zip -r deploy.zip . -x "*.git*" "venv/*" "__pycache__/*" "bin/fairy-stockfish"
+
+      # 3. S3 업로드 (변수 사용)
+      - name: Upload to S3
+        run: |
+          # ⭐️ 위에서 정의한 S3_KEY 변수를 사용하여 경로 불일치 방지
+          aws s3 cp deploy.zip s3://${{ env.S3_BUCKET_NAME }}/${{ steps.config.outputs.S3_KEY }}
+
+      # 4. CodeDeploy 배포 요청 (변수 사용)
+      - name: Create CodeDeploy Deployment
+        run: |
+          aws deploy create-deployment \
+            --application-name ${{ env.CODEDEPLOY_APP_NAME }} \
+            --deployment-config-name CodeDeployDefault.OneAtATime \
+            --deployment-group-name ${{ steps.config.outputs.DEPLOY_GROUP }} \
+            --s3-location bucket=${{ env.S3_BUCKET_NAME }},key=${{ steps.config.outputs.S3_KEY }},bundleType=zip

@@ -1,0 +1,35 @@
+# === Dependencies ===
+node_modules/
+.pnpm/
+turbo/
+.pnpm-debug.log
+
+# === Build Outputs ===
+dist/
+out/
+build/
+.next/
+pkgs/**/lib/
+
+# === Static Assets / Uploads ===
+upload*/
+log*/
+public/assets/
+**/public/
+**/static/
+
+# === Generated Files ===
+**/*.d.ts
+**/__generated__/
+
+# === Python / Cache ===
+__pycache__/
+coverage/
+
+# === Environment / Secrets ===
+.env*
+.DS_Store
+*.log
+
+# === Git ===
+.git/

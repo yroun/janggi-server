@@ -1,0 +1,44 @@
+npm-debug.log
+.next
+.editorconfig
+.svn
+
+# Node
+node_modules
+.pnpm
+.pnpm-debug.log
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+env/
+venv/
+
+# Turbo
+.turbo/
+
+# Build output
+dist/
+out/
+build/
+.next/
+
+# IDE
+.vscode
+.idea
+.DS_Store
+
+# Git
+.git
+.gitignore
+
+# Logs / uploads
+*.log
+upload*/
+log*/
+
+# Test / Coverage
+coverage/
+*.cover
+*.tsbuildinfo
