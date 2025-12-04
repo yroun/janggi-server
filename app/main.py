@@ -13,6 +13,7 @@ origins = [
     "http://localhost:4300",   # Janggi App (독립 실행)
     "http://127.0.0.1:4300",
     "http://127.0.0.1:3000",
+    "http://play.yroun.com",
 ]
 
 app.add_middleware(
