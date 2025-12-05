@@ -11,6 +11,5 @@ services:
       - ./logs:/app/logs
     environment:
       - FAIRY_STOCKFISH_PATH=/app/bin/fairy-stockfish
-      # Prod/Dev 환경 변수 추가 가능
-      # - ENV=production
+      - APP_ENV=production
     restart: always

@@ -7,14 +7,29 @@ from app.api.v1.endpoints import analyze, monitor
 
 app = FastAPI(title="Janggi Analysis Service")
 
-# --- CORS 설정 (브라우저 접근 허용) ---
-origins = [
-    "http://localhost:3000",   # Play Site
-    "http://localhost:4300",   # Janggi App (독립 실행)
+APP_ENV = os.getenv("APP_ENV", "dev")
+
+# 2. 환경에 따른 CORS Origin 설정
+if APP_ENV == "production":
+  # [운영 환경] play.yroun.com 만 허용
+  origins = [
+    "https://play.yroun.com",
+  ]
+  print("🔒 CORS Policy: Production Mode (play.yroun.com only)")
+
+else:
+  # [개발 환경] 로컬호스트 허용
+  origins = [
+    "http://localhost:3000",
+    "http://localhost:4300",
     "http://127.0.0.1:4300",
     "http://127.0.0.1:3000",
-    "http://play.yroun.com",
-]
+    # 개발 중 테스트를 위해 도메인도 포함 가능 (선택)
+    # "https://play.yroun.com",
+  ]
+  print(f"🔓 CORS Policy: Development Mode (Localhost allowed)")
+
+# --- CORS 설정 (브라우저 접근 허용) ---
 
 app.add_middleware(
     CORSMiddleware,
