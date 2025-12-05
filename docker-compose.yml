@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  janggi-server:
+  janggi:
     build: .
-    container_name: janggi-server
+    container_name: server
     ports:
       - "8001:8001" # 호스트 8001 <-> 컨테이너 8001
     volumes:

@@ -19,9 +19,10 @@ RUN curl -L -o xiangqi-83f16c17fe26.nnue https://github.com/fairy-stockfish/Fair
     curl -L -o janggi-85de3dae670a.nnue https://github.com/fairy-stockfish/Fairy-Stockfish/releases/download/fairy_sf_14_0_1_xq/janggi-85de3dae670a.nnue
 
 # 2. 빌드 (병렬 처리 추가)
-RUN sed -i '1i#define LARGEBOARD' types.h && \
-    make clean && \
-    make build ARCH=x86-64-modern CXXFLAGS="-std=c++17 -DLARGEBOARD -DALL_VARIANTS" -j$(nproc)
+#RUN sed -i '1i#define LARGEBOARD' types.h && \
+RUN make clean && \
+#make build ARCH=x86-64 largeboards=yes all=yes CXXFLAGS="-std=c++17 -DLARGEBOARD -DALL_VARIANTS" -j$(nproc)
+make build ARCH=x86-64 largeboards=yes all=yes
 
 # ==========================================
 # Stage 2: 서비스 실행 (Runtime)
